@@ -21,8 +21,8 @@ func InOrOut() string {
 	return "outCluster"
 }
 
-// Deployment 获取指定 namespace 下所有的 deployment 对象
-func get(clientset *kubernetes.Clientset, namespace string) {
+// getDeployment 获取指定 namespace 下所有的 deployment 对象
+func getDeployment(clientset *kubernetes.Clientset, namespace string) {
 	// 获取指定 名称空间 下所有的 deployment 对象
 	deployments, _ := clientset.AppsV1().Deployments(namespace).List(context.TODO(), v1.ListOptions{})
 	for i, deploy := range deployments.Items {
@@ -48,5 +48,5 @@ func main() {
 	clientset, _ := kubernetes.NewForConfig(config)
 
 	// 获取指定 namespace 下所有的 deployment 对象
-	get(clientset, "kube-system")
+	getDeployment(clientset, "kube-system")
 }
