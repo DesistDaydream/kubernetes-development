@@ -24,12 +24,12 @@ func InOrOut() string {
 	return "outCluster"
 }
 
-// getDeployment 获取指定 namespace 下所有的 deployment 对象
+// nodeHandle 处理 Node 信息
 func nodeHandle(clientset *kubernetes.Clientset) {
 	nodes, _ := clientset.CoreV1().Nodes().List(context.TODO(), v1.ListOptions{})
 	for _, node := range nodes.Items {
 		fmt.Println(node.Name)
-		// 获取指定 名称空间 下所有的 deployment 对象
+		// 获取指定 名称空间 下所有的  对象
 		node, _ := clientset.CoreV1().Nodes().Get(context.TODO(), node.Name, v1.GetOptions{})
 		fmt.Printf("%v\n", node.Spec.ProviderID)
 	}
@@ -52,6 +52,6 @@ func main() {
 	// 根据 BuildConfigFromFlags 创建的配置，返回一个可以连接集群的指针
 	clientset, _ := kubernetes.NewForConfig(config)
 
-	// 获取指定 namespace 下所有的 deployment 对象
+	// 处理 Node 信息
 	nodeHandle(clientset)
 }
