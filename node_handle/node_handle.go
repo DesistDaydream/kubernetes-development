@@ -1,19 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-
-	listers "k8s.io/client-go/listers/core/v1"
 )
 
-type nodeHandel struct {
-	nodeStore listers.NodeLister
-}
+// type nodeHandle struct {
+// 	nodeStore listers.NodeLister
+// }
 
 // InOrOut 判断当前环境是在集群内部，还是集群外部
 func InOrOut() string {
@@ -25,13 +25,14 @@ func InOrOut() string {
 }
 
 // getDeployment 获取指定 namespace 下所有的 deployment 对象
-func getNode(clientset *kubernetes.Clientset, nodeName string) {
-	var nh nodeHandel
-	cacheNode, _ := nh.nodeStore.Get(nodeName)
-	node := cacheNode.DeepCopy()
-	// 获取指定 名称空间 下所有的 deployment 对象
-	// node, _ := clientset.CoreV1().Nodes().Get(context.TODO(), nodeName, v1.GetOptions{})
-	fmt.Printf("%v\n", node.Spec.PodCIDR)
+func nodeHandle(clientset *kubernetes.Clientset) {
+	nodes, _ := clientset.CoreV1().Nodes().List(context.TODO(), v1.ListOptions{})
+	for _, node := range nodes.Items {
+		fmt.Println(node.Name)
+		// 获取指定 名称空间 下所有的 deployment 对象
+		node, _ := clientset.CoreV1().Nodes().Get(context.TODO(), node.Name, v1.GetOptions{})
+		fmt.Printf("%v\n", node.Spec.ProviderID)
+	}
 }
 
 func main() {
@@ -43,7 +44,7 @@ func main() {
 		config, _ = rest.InClusterConfig()
 	case "outCluster":
 		// 根据指定的 kubeconfig 文件创建一个用于连接集群的配置，/root/.kube/config 为 kubectl 命令所用的 config 文件
-		config, _ = clientcmd.BuildConfigFromFlags("", "/root/.kube/config")
+		config, _ = clientcmd.BuildConfigFromFlags("", "/home/lichenhao/.kube/config")
 		// 注意，clientcmd.BuildConfigFromFlags() 内部实际上也是有调用 rest.InClusterConfig() 的逻辑，只要满足条件即可。条件如下：
 		// 若第二个参数为空的话，则会直接调用 rest.InClusterConfig()
 	}
@@ -52,5 +53,5 @@ func main() {
 	clientset, _ := kubernetes.NewForConfig(config)
 
 	// 获取指定 namespace 下所有的 deployment 对象
-	getNode(clientset, "node-1.bj-test")
+	nodeHandle(clientset)
 }
