@@ -39,7 +39,7 @@ func main() {
 		config, _ = rest.InClusterConfig()
 	case "outCluster":
 		// 根据指定的 kubeconfig 文件创建一个用于连接集群的配置，/root/.kube/config 为 kubectl 命令所用的 config 文件
-		config, _ = clientcmd.BuildConfigFromFlags("", "/root/.kube/config")
+		config, _ = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 		// 注意，clientcmd.BuildConfigFromFlags() 内部实际上也是有调用 rest.InClusterConfig() 的逻辑，只要满足条件即可。条件如下：
 		// 若第二个参数为空的话，则会直接调用 rest.InClusterConfig()
 	}
